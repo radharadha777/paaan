@@ -1,45 +1,32 @@
-name: Unzip reviactyl.zip and move to root
+name: Delete all files from repository
 
 on:
-  workflow_dispatch:   # manual run button
-  push:
-    branches:
-      - main
-    paths:
-      - "reviactyl.zip"
+  workflow_dispatch:   # Manual run button only
 
 permissions:
-  contents: write      # allow push back to repo
-  actions: read
+  contents: write
 
 jobs:
-  unzip:
+  delete:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Install unzip
-        run: sudo apt-get update && sudo apt-get install -y unzip
-
-      - name: Unzip reviactyl.zip
+      - name: Delete all files and folders (except .git)
         run: |
-          echo "🧩 Extracting reviactyl.zip..."
-          unzip -o reviactyl.zip -d temp_unzip
-          cp -r temp_unzip/* .
-          rm -rf temp_unzip
-          rm reviactyl.zip
+          echo "🧹 Deleting all files..."
+          shopt -s dotglob
+          rm -rf !(.git)
+          echo "✅ All files deleted, only .git folder remains."
 
-      - name: Commit and push changes
+      - name: Commit and push deletion
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          # Commit only if changes exist
-          if ! git diff --cached --quiet; then
-            git commit -m "✅ Unzipped and moved files from reviactyl.zip to root"
-            git push
-          else
-            echo "No new changes to commit."
-          fi
+          git add -A
+          git commit -m "🧹 Deleted all files from repository" || echo "No files to delete"
+          git push origin main
