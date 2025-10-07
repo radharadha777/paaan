@@ -1,11 +1,7 @@
-name: Unzip reviactyl.zip and move to root
+name: Manual Unzip reviactyl.zip
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "reviactyl.zip"
+  workflow_dispatch:
 
 jobs:
   unzip:
